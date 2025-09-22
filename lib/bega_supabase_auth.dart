@@ -10,3 +10,7 @@ export 'src/config/env_config.dart';
 // Export data layer
 export 'src/data/auth_repository.dart';
 export 'src/data/social_auth_repository.dart';
+
+// Export domain layer
+export 'src/domain/auth_user.dart';
+export 'src/domain/auth_result.dart';
