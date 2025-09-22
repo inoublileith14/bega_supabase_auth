@@ -16,7 +16,7 @@ class AuthResult {
 
   /// Create a successful authentication result
   factory AuthResult.success({
-    required AuthUser user,
+    AuthUser? user,
     String? message,
   }) {
     return AuthResult._(

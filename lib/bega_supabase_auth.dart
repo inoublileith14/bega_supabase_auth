@@ -14,3 +14,4 @@ export 'src/data/social_auth_repository.dart';
 // Export domain layer
 export 'src/domain/auth_user.dart';
 export 'src/domain/auth_result.dart';
+export 'src/domain/use_cases/auth_use_cases.dart';
