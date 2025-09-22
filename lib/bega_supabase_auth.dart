@@ -6,3 +6,7 @@ library bega_supabase_auth;
 
 // Export configuration
 export 'src/config/env_config.dart';
+
+// Export data layer
+export 'src/data/auth_repository.dart';
+export 'src/data/social_auth_repository.dart';
