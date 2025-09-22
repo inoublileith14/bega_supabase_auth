@@ -41,6 +41,7 @@ dependencies:
   
   # Additional dependencies for the example app
   flutter_bloc: ^8.1.6
+  supabase_flutter: ^2.8.0
 
 dev_dependencies:
   flutter_test:

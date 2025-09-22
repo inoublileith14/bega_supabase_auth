@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import 'package:bega_supabase_auth/bega_supabase_auth.dart';
 
 void main() async {
@@ -7,6 +8,12 @@ void main() async {
   
   // Initialize environment configuration
   await EnvConfig.initialize();
+  
+  // Initialize Supabase
+  await Supabase.initialize(
+    url: EnvConfig.supabaseUrl,
+    anonKey: EnvConfig.supabaseAnonKey,
+  );
   
   runApp(const MyApp());
 }
