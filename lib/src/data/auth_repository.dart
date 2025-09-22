@@ -45,7 +45,7 @@ class AuthRepository {
       );
       return response;
     } catch (e) {
-      throw AuthException('Sign up failed: $e');
+      throw BegaAuthException('Sign up failed: $e');
     }
   }
 
@@ -61,7 +61,7 @@ class AuthRepository {
       );
       return response;
     } catch (e) {
-      throw AuthException('Sign in failed: $e');
+      throw BegaAuthException('Sign in failed: $e');
     }
   }
 
@@ -78,7 +78,7 @@ class AuthRepository {
       );
       return true;
     } catch (e) {
-      throw AuthException('OAuth sign in failed: $e');
+      throw BegaAuthException('OAuth sign in failed: $e');
     }
   }
 
@@ -87,7 +87,7 @@ class AuthRepository {
     try {
       await _supabaseClient.auth.signOut();
     } catch (e) {
-      throw AuthException('Sign out failed: $e');
+      throw BegaAuthException('Sign out failed: $e');
     }
   }
 
@@ -96,7 +96,7 @@ class AuthRepository {
     try {
       await _supabaseClient.auth.resetPasswordForEmail(email);
     } catch (e) {
-      throw AuthException('Password reset failed: $e');
+      throw BegaAuthException('Password reset failed: $e');
     }
   }
 
@@ -108,7 +108,7 @@ class AuthRepository {
       );
       return response;
     } catch (e) {
-      throw AuthException('Password update failed: $e');
+      throw BegaAuthException('Password update failed: $e');
     }
   }
 
@@ -128,7 +128,7 @@ class AuthRepository {
       );
       return response;
     } catch (e) {
-      throw AuthException('User update failed: $e');
+      throw BegaAuthException('User update failed: $e');
     }
   }
 
@@ -137,7 +137,7 @@ class AuthRepository {
     try {
       await _supabaseClient.auth.admin.deleteUser(currentUser!.id);
     } catch (e) {
-      throw AuthException('User deletion failed: $e');
+      throw BegaAuthException('User deletion failed: $e');
     }
   }
 
@@ -147,16 +147,16 @@ class AuthRepository {
       final response = await _supabaseClient.auth.refreshSession();
       return response;
     } catch (e) {
-      throw AuthException('Session refresh failed: $e');
+      throw BegaAuthException('Session refresh failed: $e');
     }
   }
 }
 
 /// Exception thrown when authentication operations fail
-class AuthException implements Exception {
+class BegaAuthException implements Exception {
   final String message;
-  const AuthException(this.message);
+  const BegaAuthException(this.message);
 
   @override
-  String toString() => 'AuthException: $message';
+  String toString() => 'BegaAuthException: $message';
 }
