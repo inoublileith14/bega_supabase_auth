@@ -28,8 +28,6 @@ class BegaSupabaseAuth extends StatefulWidget {
   /// Callback for authentication errors
   final void Function(String error, String? message)? onAuthError;
   
-  /// Callback for successful sign out
-  final void Function(String? message)? onSignOutSuccess;
   
   /// Callback for social authentication success
   final void Function(User user, String provider, String? message)? onSocialAuthSuccess;
@@ -47,7 +45,6 @@ class BegaSupabaseAuth extends StatefulWidget {
     this.onSignInSuccess,
     this.onSignUpSuccess,
     this.onAuthError,
-    this.onSignOutSuccess,
     this.onSocialAuthSuccess,
     this.onSocialAuthError,
   });
@@ -152,7 +149,6 @@ class _BegaSupabaseAuthState extends State<BegaSupabaseAuth> {
         onSignInSuccess: widget.onSignInSuccess,
         onSignUpSuccess: widget.onSignUpSuccess,
         onAuthError: widget.onAuthError,
-        onSignOutSuccess: widget.onSignOutSuccess,
         onSocialAuthSuccess: widget.onSocialAuthSuccess,
         onSocialAuthError: widget.onSocialAuthError,
       ),
@@ -250,7 +246,6 @@ class _AuthScreen extends StatefulWidget {
   final void Function(User user, String? message)? onSignInSuccess;
   final void Function(User user, String? message)? onSignUpSuccess;
   final void Function(String error, String? message)? onAuthError;
-  final void Function(String? message)? onSignOutSuccess;
   final void Function(User user, String provider, String? message)? onSocialAuthSuccess;
   final void Function(String error, String provider, String? message)? onSocialAuthError;
 
@@ -259,7 +254,6 @@ class _AuthScreen extends StatefulWidget {
     this.onSignInSuccess,
     this.onSignUpSuccess,
     this.onAuthError,
-    this.onSignOutSuccess,
     this.onSocialAuthSuccess,
     this.onSocialAuthError,
   });
@@ -269,50 +263,28 @@ class _AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<_AuthScreen> {
-  User? _currentUser;
 
   @override
   void initState() {
     super.initState();
-    _getCurrentUser();
     // Listen to auth state changes
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       print('🔄 Auth state changed: ${data.event}');
       if (data.session?.user != null) {
         print('👤 User logged in: ${data.session!.user!.email}');
-        // Call success callback if provided
+        // Call success callback if provided - let the example app handle navigation
         if (widget.onSignInSuccess != null) {
           widget.onSignInSuccess!(data.session!.user!, 'User signed in successfully');
         }
-      } else if (data.event == AuthChangeEvent.signedOut) {
-        // Call sign out callback if provided
-        if (widget.onSignOutSuccess != null) {
-          widget.onSignOutSuccess!('User signed out successfully');
-        }
       }
-      setState(() {
-        _currentUser = data.session?.user;
-      });
-    });
-  }
-
-  void _getCurrentUser() {
-    setState(() {
-      _currentUser = Supabase.instance.client.auth.currentUser;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // If user is authenticated, show home screen
-    if (_currentUser != null) {
-      return _HomeScreen(
-        user: _currentUser!,
-        onSignOutSuccess: widget.onSignOutSuccess,
-      );
-    }
-
-    // Otherwise show pure supabase_auth_ui components
+    // Always show the authentication UI - let the example app handle navigation
+    // The callbacks will be called when authentication succeeds, allowing the
+    // example app to decide which screen to show
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sign In'),
@@ -372,7 +344,7 @@ class _AuthScreenState extends State<_AuthScreen> {
                 print('👤 User: ${session.user.email}');
                 print('🔑 Session: ${session.accessToken.substring(0, 20)}...');
                 print('📊 User metadata: ${session.user.userMetadata}');
-                print('🎉 User should now see the home screen!');
+                print('🎉 User authenticated successfully! Callback will handle navigation.');
                 
                 // Call social auth success callback if provided
                 if (widget.onSocialAuthSuccess != null) {
@@ -408,79 +380,6 @@ class _AuthScreenState extends State<_AuthScreen> {
                   ),
                 );
               },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _HomeScreen extends StatelessWidget {
-  final User user;
-  final void Function(String? message)? onSignOutSuccess;
-
-  const _HomeScreen({required this.user, this.onSignOutSuccess});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Welcome!'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await Supabase.instance.client.auth.signOut();
-              if (onSignOutSuccess != null) {
-                onSignOutSuccess!('User signed out successfully');
-              }
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.check_circle,
-              size: 100,
-              color: Colors.green,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              'Welcome, ${user.email}!',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'You are successfully authenticated.',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            if (user.userMetadata?['username'] != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                'Username: ${user.userMetadata?['username']}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () async {
-                await Supabase.instance.client.auth.signOut();
-                if (onSignOutSuccess != null) {
-                  onSignOutSuccess!('User signed out successfully');
-                }
-              },
-              icon: const Icon(Icons.logout),
-              label: const Text('Sign Out'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
             ),
           ],
         ),

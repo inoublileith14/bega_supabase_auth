@@ -60,9 +60,9 @@ class MyApp extends StatelessWidget {
 - Email/password login with `SupaEmailAuth`
 - Social login (Google, GitHub, Apple) with `SupaSocialsAuth`
 - User management
-- Automatic state handling
-- Beautiful Material Design UI
 - **NEW**: Success/error callbacks for custom redirection
+- **NEW**: No automatic navigation - you control where users go after auth
+- Beautiful Material Design UI
 - No customization needed - just works!
 
 ### 🎯 Callback Support (NEW!)
@@ -87,10 +87,6 @@ BegaSupabaseAuth(
   onSocialAuthSuccess: (user, provider, message) {
     print('Social auth success: $provider - ${user.email}');
     // Handle different providers, link accounts, etc.
-  },
-  onSignOutSuccess: (message) {
-    print('User signed out');
-    // Clear data, navigate to login, etc.
   },
   
   // Error callbacks

@@ -22,7 +22,6 @@ class CallbackExampleApp extends StatelessWidget {
       onSignInSuccess: _onSignInSuccess,
       onSignUpSuccess: _onSignUpSuccess,
       onSocialAuthSuccess: _onSocialAuthSuccess,
-      onSignOutSuccess: _onSignOutSuccess,
       
       // Error callbacks - handle authentication errors
       onAuthError: _onAuthError,
@@ -116,27 +115,6 @@ class CallbackExampleApp extends StatelessWidget {
     // NavigationService.navigateTo('/social-welcome?provider=$provider');
   }
 
-  /// Handle successful sign out
-  static void _onSignOutSuccess(String? message) {
-    print('👋 SIGN OUT SUCCESS!');
-    print('💬 Message: $message');
-    
-    // Here you can implement custom redirection logic for sign out
-    // For example:
-    // - Navigate to login screen
-    // - Clear app data
-    // - Show goodbye message
-    // - Reset app state
-    
-    // Example: Navigate to login screen
-    // NavigationService.navigateTo('/login');
-    
-    // Example: Clear user data
-    // UserPreferences.clearUser();
-    
-    // Example: Show goodbye message
-    // showSnackBar('Goodbye! Come back soon!');
-  }
 
   /// Handle general authentication errors
   static void _onAuthError(String error, String? message) {

@@ -21,7 +21,6 @@ class MyApp extends StatelessWidget {
       // Optional: Add callbacks for custom handling
       onSignInSuccess: _onSignInSuccess,
       onSignUpSuccess: _onSignUpSuccess,
-      onSignOutSuccess: _onSignOutSuccess,
       onAuthError: _onAuthError,
     );
   }
@@ -30,24 +29,24 @@ class MyApp extends StatelessWidget {
   static void _onSignInSuccess(User user, String? message) {
     print('🎉 Sign in successful: ${user.email}');
     // Add your custom logic here (navigation, state management, etc.)
+    // Example: Navigate to your app's main screen
+    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
   }
 
   /// Handle successful sign up
   static void _onSignUpSuccess(User user, String? message) {
     print('🎉 Sign up successful: ${user.email}');
     // Add your custom logic here (onboarding, welcome flow, etc.)
-  }
-
-  /// Handle successful sign out
-  static void _onSignOutSuccess(String? message) {
-    print('👋 Sign out successful');
-    // Add your custom logic here (clear data, navigate to login, etc.)
+    // Example: Navigate to onboarding screen
+    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => OnboardingScreen()));
   }
 
   /// Handle authentication errors
   static void _onAuthError(String error, String? message) {
     print('❌ Auth error: $error');
     // Add your custom error handling here (show dialog, retry logic, etc.)
+    // Example: Show error dialog
+    // showDialog(context: context, builder: (context) => AlertDialog(title: Text('Error'), content: Text(error)));
   }
 }
 
@@ -60,5 +59,6 @@ class MyApp extends StatelessWidget {
 /// - User management
 /// - Automatic state handling
 /// - Beautiful Material Design UI
+/// - **NEW**: Success/error callbacks for custom redirection
 /// 
 /// Just replace the URL and key with your actual Supabase credentials!
