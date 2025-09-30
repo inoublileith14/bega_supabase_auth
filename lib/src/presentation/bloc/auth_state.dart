@@ -25,10 +25,7 @@ class AuthAuthenticated extends AuthState {
   final AuthUser user;
   final String? message;
 
-  const AuthAuthenticated({
-    required this.user,
-    this.message,
-  });
+  const AuthAuthenticated({required this.user, this.message});
 
   @override
   List<Object?> get props => [user, message];
@@ -38,9 +35,7 @@ class AuthAuthenticated extends AuthState {
 class AuthUnauthenticated extends AuthState {
   final String? message;
 
-  const AuthUnauthenticated({
-    this.message,
-  });
+  const AuthUnauthenticated({this.message});
 
   @override
   List<Object?> get props => [message];
@@ -51,10 +46,7 @@ class AuthFailure extends AuthState {
   final AuthError error;
   final String? message;
 
-  const AuthFailure({
-    required this.error,
-    this.message,
-  });
+  const AuthFailure({required this.error, this.message});
 
   @override
   List<Object?> get props => [error, message];
@@ -64,9 +56,7 @@ class AuthFailure extends AuthState {
 class AuthSuccess extends AuthState {
   final String message;
 
-  const AuthSuccess({
-    required this.message,
-  });
+  const AuthSuccess({required this.message});
 
   @override
   List<Object?> get props => [message];

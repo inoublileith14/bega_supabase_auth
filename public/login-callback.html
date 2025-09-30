@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Callback - Hit Alerts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid white;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="spinner" id="spinner"></div>
+        <h2 id="status">Redirecting to app...</h2>
+        <p id="message">Please wait while we redirect you to the Hit Alerts app.</p>
+        <div id="fallback" style="display: none;">
+            <p>If the app doesn't open automatically, <a href="hitapp://login" style="color: #4CAF50;">click here</a></p>
+        </div>
+    </div>
+
+    <script>
+        console.log('🔗 Login callback page loaded');
+        console.log('📱 User Agent:', navigator.userAgent);
+        
+        // Check if we're on mobile
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        console.log('📱 Is Mobile:', isMobile);
+        
+        // Try to redirect to app
+        function redirectToApp() {
+            console.log('🚀 Attempting to redirect to app...');
+            
+            // Try custom scheme first
+            const appUrl = 'hitapp://login';
+            const fallbackUrl = 'https://Hit.Alerts.com/app';
+            
+            // Create a hidden iframe to test if the app is installed
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = appUrl;
+            document.body.appendChild(iframe);
+            
+            // Set up fallback
+            let fallbackShown = false;
+            const fallbackTimer = setTimeout(() => {
+                if (!fallbackShown) {
+                    console.log('⏰ Fallback triggered - app may not be installed');
+                    document.getElementById('spinner').style.display = 'none';
+                    document.getElementById('status').textContent = 'App not found';
+                    document.getElementById('message').textContent = 'The Hit Alerts app is not installed on this device.';
+                    document.getElementById('fallback').style.display = 'block';
+                    fallbackShown = true;
+                }
+            }, 3000);
+            
+            // Try to redirect after a short delay
+            setTimeout(() => {
+                try {
+                    window.location.href = appUrl;
+                    console.log('✅ Redirected to app');
+                } catch (error) {
+                    console.error('❌ Redirect failed:', error);
+                    if (!fallbackShown) {
+                        clearTimeout(fallbackTimer);
+                        document.getElementById('spinner').style.display = 'none';
+                        document.getElementById('status').textContent = 'Redirect failed';
+                        document.getElementById('message').textContent = 'Unable to redirect to the app.';
+                        document.getElementById('fallback').style.display = 'block';
+                        fallbackShown = true;
+                    }
+                }
+            }, 1000);
+            
+            // Clean up iframe
+            setTimeout(() => {
+                if (iframe.parentNode) {
+                    iframe.parentNode.removeChild(iframe);
+                }
+            }, 5000);
+        }
+        
+        // Start redirect process
+        redirectToApp();
+        
+        // Handle page visibility change (app opened)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                console.log('✅ App opened - page hidden');
+                document.getElementById('status').textContent = 'Success!';
+                document.getElementById('status').className = 'success';
+                document.getElementById('message').textContent = 'Opening Hit Alerts app...';
+            }
+        });
+        
+        // Handle page focus (app closed)
+        window.addEventListener('focus', function() {
+            console.log('🔄 Page focused - app may have closed');
+        });
+    </script>
+</body>
+</html>
+
+

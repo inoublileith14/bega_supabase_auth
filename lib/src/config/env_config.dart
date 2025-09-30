@@ -24,12 +24,19 @@ class EnvConfig {
     }
   }
 
+  /// Load environment configuration (alias for initialize)
+  static Future<void> load({String? envFilePath}) async {
+    await initialize(envFilePath: envFilePath);
+  }
+
   /// Get Supabase URL from environment variables
   static String get supabaseUrl {
     _ensureInitialized();
     final url = dotenv.env[_supabaseUrlKey];
     if (url == null || url.isEmpty) {
-      throw EnvConfigException('SUPABASE_URL is not set in environment variables');
+      throw EnvConfigException(
+        'SUPABASE_URL is not set in environment variables',
+      );
     }
     return url;
   }
@@ -39,7 +46,9 @@ class EnvConfig {
     _ensureInitialized();
     final key = dotenv.env[_supabaseAnonKeyKey];
     if (key == null || key.isEmpty) {
-      throw EnvConfigException('SUPABASE_ANON_KEY is not set in environment variables');
+      throw EnvConfigException(
+        'SUPABASE_ANON_KEY is not set in environment variables',
+      );
     }
     return key;
   }
@@ -71,7 +80,9 @@ class EnvConfig {
   /// Ensure the configuration is initialized
   static void _ensureInitialized() {
     if (!_isInitialized) {
-      throw EnvConfigException('EnvConfig must be initialized before use. Call EnvConfig.initialize() first.');
+      throw EnvConfigException(
+        'EnvConfig must be initialized before use. Call EnvConfig.initialize() first.',
+      );
     }
   }
 

@@ -20,6 +20,5 @@ export 'src/domain/use_cases/auth_use_cases.dart';
 export 'src/presentation/bloc/auth_bloc.dart';
 export 'src/presentation/bloc/auth_event.dart';
 export 'src/presentation/bloc/auth_state.dart';
-export 'src/presentation/widgets/simple_auth_widget.dart';
 
-// Re-export supabase_auth_ui components and types
+

@@ -12,7 +12,7 @@ class AuthRepository {
   /// Initialize Supabase with environment configuration
   static Future<void> initialize() async {
     await EnvConfig.initialize();
-    
+
     await Supabase.initialize(
       url: EnvConfig.supabaseUrl,
       anonKey: EnvConfig.supabaseAnonKey,
@@ -29,7 +29,8 @@ class AuthRepository {
   bool get isAuthenticated => currentUser != null;
 
   /// Stream of authentication state changes
-  Stream<AuthState> get authStateChanges => _supabaseClient.auth.onAuthStateChange;
+  Stream<AuthState> get authStateChanges =>
+      _supabaseClient.auth.onAuthStateChange;
 
   /// Sign up with email and password
   Future<AuthResponse> signUp({
@@ -66,7 +67,8 @@ class AuthRepository {
   }
 
   /// Sign in with OAuth provider
-  Future<bool> signInWithOAuth(OAuthProvider provider, {
+  Future<bool> signInWithOAuth(
+    OAuthProvider provider, {
     String? redirectTo,
     Map<String, String>? queryParams,
   }) async {
@@ -120,11 +122,7 @@ class AuthRepository {
   }) async {
     try {
       final response = await _supabaseClient.auth.updateUser(
-        UserAttributes(
-          email: email,
-          password: password,
-          data: data,
-        ),
+        UserAttributes(email: email, password: password, data: data),
       );
       return response;
     } catch (e) {

@@ -35,9 +35,7 @@ void main() {
       test('should throw BegaAuthException for OAuth sign in errors', () async {
         final authRepository = AuthRepository();
         expect(
-          () => authRepository.signInWithOAuth(
-            OAuthProvider.google,
-          ),
+          () => authRepository.signInWithOAuth(OAuthProvider.google),
           throwsA(isA<BegaAuthException>()),
         );
       });
@@ -50,21 +48,27 @@ void main() {
         );
       });
 
-      test('should throw BegaAuthException for password reset errors', () async {
-        final authRepository = AuthRepository();
-        expect(
-          () => authRepository.resetPassword('test@example.com'),
-          throwsA(isA<BegaAuthException>()),
-        );
-      });
+      test(
+        'should throw BegaAuthException for password reset errors',
+        () async {
+          final authRepository = AuthRepository();
+          expect(
+            () => authRepository.resetPassword('test@example.com'),
+            throwsA(isA<BegaAuthException>()),
+          );
+        },
+      );
 
-      test('should throw BegaAuthException for password update errors', () async {
-        final authRepository = AuthRepository();
-        expect(
-          () => authRepository.updatePassword('newpassword'),
-          throwsA(isA<BegaAuthException>()),
-        );
-      });
+      test(
+        'should throw BegaAuthException for password update errors',
+        () async {
+          final authRepository = AuthRepository();
+          expect(
+            () => authRepository.updatePassword('newpassword'),
+            throwsA(isA<BegaAuthException>()),
+          );
+        },
+      );
 
       test('should throw BegaAuthException for user update errors', () async {
         final authRepository = AuthRepository();
@@ -82,13 +86,16 @@ void main() {
         );
       });
 
-      test('should throw BegaAuthException for session refresh errors', () async {
-        final authRepository = AuthRepository();
-        expect(
-          () => authRepository.refreshSession(),
-          throwsA(isA<BegaAuthException>()),
-        );
-      });
+      test(
+        'should throw BegaAuthException for session refresh errors',
+        () async {
+          final authRepository = AuthRepository();
+          expect(
+            () => authRepository.refreshSession(),
+            throwsA(isA<BegaAuthException>()),
+          );
+        },
+      );
     });
   });
 }

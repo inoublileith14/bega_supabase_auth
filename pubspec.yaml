@@ -1,6 +1,6 @@
 name: bega_supabase_auth
-description: "A new Flutter package project."
-version: 0.0.1
+description: "A Flutter package that integrates supabase_auth_ui with BLoC state management for seamless authentication."
+version: 0.0.2
 homepage:
 
 environment:

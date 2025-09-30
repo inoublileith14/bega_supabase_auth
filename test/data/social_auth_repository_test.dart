@@ -21,11 +21,17 @@ void main() {
 
     group('Provider Configuration', () {
       test('should check if Google is configured', () {
-        expect(socialAuthRepository.isProviderConfigured('google'), isA<bool>());
+        expect(
+          socialAuthRepository.isProviderConfigured('google'),
+          isA<bool>(),
+        );
       });
 
       test('should check if GitHub is configured', () {
-        expect(socialAuthRepository.isProviderConfigured('github'), isA<bool>());
+        expect(
+          socialAuthRepository.isProviderConfigured('github'),
+          isA<bool>(),
+        );
       });
 
       test('should return available providers', () {
@@ -39,56 +45,75 @@ void main() {
     });
 
     group('Exception Handling', () {
-      test('should throw SocialAuthException for Google sign in errors', () async {
-        expect(
-          () => socialAuthRepository.signInWithGoogle(),
-          throwsA(isA<SocialAuthException>()),
-        );
-      });
+      test(
+        'should throw SocialAuthException for Google sign in errors',
+        () async {
+          expect(
+            () => socialAuthRepository.signInWithGoogle(),
+            throwsA(isA<SocialAuthException>()),
+          );
+        },
+      );
 
-      test('should throw SocialAuthException for GitHub sign in errors', () async {
-        expect(
-          () => socialAuthRepository.signInWithGitHub(),
-          throwsA(isA<SocialAuthException>()),
-        );
-      });
+      test(
+        'should throw SocialAuthException for GitHub sign in errors',
+        () async {
+          expect(
+            () => socialAuthRepository.signInWithGitHub(),
+            throwsA(isA<SocialAuthException>()),
+          );
+        },
+      );
 
-      test('should throw SocialAuthException for Apple sign in errors', () async {
-        expect(
-          () => socialAuthRepository.signInWithApple(),
-          throwsA(isA<SocialAuthException>()),
-        );
-      });
+      test(
+        'should throw SocialAuthException for Apple sign in errors',
+        () async {
+          expect(
+            () => socialAuthRepository.signInWithApple(),
+            throwsA(isA<SocialAuthException>()),
+          );
+        },
+      );
 
-      test('should throw SocialAuthException for Facebook sign in errors', () async {
-        expect(
-          () => socialAuthRepository.signInWithFacebook(),
-          throwsA(isA<SocialAuthException>()),
-        );
-      });
+      test(
+        'should throw SocialAuthException for Facebook sign in errors',
+        () async {
+          expect(
+            () => socialAuthRepository.signInWithFacebook(),
+            throwsA(isA<SocialAuthException>()),
+          );
+        },
+      );
 
-      test('should throw SocialAuthException for Twitter sign in errors', () async {
-        expect(
-          () => socialAuthRepository.signInWithTwitter(),
-          throwsA(isA<SocialAuthException>()),
-        );
-      });
+      test(
+        'should throw SocialAuthException for Twitter sign in errors',
+        () async {
+          expect(
+            () => socialAuthRepository.signInWithTwitter(),
+            throwsA(isA<SocialAuthException>()),
+          );
+        },
+      );
 
-      test('should throw SocialAuthException for Discord sign in errors', () async {
-        expect(
-          () => socialAuthRepository.signInWithDiscord(),
-          throwsA(isA<SocialAuthException>()),
-        );
-      });
+      test(
+        'should throw SocialAuthException for Discord sign in errors',
+        () async {
+          expect(
+            () => socialAuthRepository.signInWithDiscord(),
+            throwsA(isA<SocialAuthException>()),
+          );
+        },
+      );
 
-      test('should throw SocialAuthException for custom provider sign in errors', () async {
-        expect(
-          () => socialAuthRepository.signInWithProvider(
-            OAuthProvider.google,
-          ),
-          throwsA(isA<SocialAuthException>()),
-        );
-      });
+      test(
+        'should throw SocialAuthException for custom provider sign in errors',
+        () async {
+          expect(
+            () => socialAuthRepository.signInWithProvider(OAuthProvider.google),
+            throwsA(isA<SocialAuthException>()),
+          );
+        },
+      );
     });
   });
 }

@@ -1,17 +1,16 @@
 # Bega Supabase Auth
 
-A comprehensive Flutter package that provides a clean, BLoC-based authentication system for Supabase with support for email/password and social authentication providers.
+A comprehensive Flutter package that provides Supabase authentication with BLoC state management, environment configuration, and reusable widgets.
 
 ## Features
 
-- 🔐 **Email/Password Authentication** - Complete sign up, sign in, and password management
-- 🌐 **Social Authentication** - Google, GitHub, Apple, Facebook, Twitter, and Discord support
-- 🏗️ **Clean Architecture** - Domain, Data, and Presentation layers with proper separation of concerns
-- 📱 **BLoC State Management** - Reactive state management with flutter_bloc
-- ⚙️ **Environment Configuration** - Secure configuration using .env files
-- 🧪 **Comprehensive Testing** - Unit tests with 90%+ coverage
-- 📦 **Easy Integration** - Simple setup with minimal configuration
-- 🎨 **Example App** - Complete working example demonstrating all features
+- 🔐 **Complete Authentication Flow**: Email/password and social authentication
+- 🏗️ **BLoC State Management**: Clean architecture with reactive state management
+- 🌍 **Environment Configuration**: Easy setup with `.env` files
+- 🎨 **Reusable Widgets**: Pre-built authentication components
+- 🔧 **Customizable**: Flexible styling and configuration options
+- 📱 **Cross-Platform**: Works on iOS, Android, Web, and Desktop
+- 🧪 **Well Tested**: Comprehensive test coverage
 
 ## Installation
 
@@ -30,50 +29,143 @@ flutter pub get
 
 ## Quick Start
 
-### 1. Environment Setup
+### 🚀 Super Simple (Recommended)
+
+Just one widget call and you're done! Uses pure `supabase_auth_ui` components.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:bega_supabase_auth/bega_supabase_auth.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const BegaSupabaseAuth(
+      supabaseUrl: "https://your-project.supabase.co",
+      supabaseAnonKey: "your-anon-key-here",
+      appTitle: "My Awesome App",
+    );
+  }
+}
+```
+
+**That's it!** 🎉 You get:
+- Complete authentication UI using pure `supabase_auth_ui`
+- Email/password login with `SupaEmailAuth`
+- Social login (Google, GitHub, Apple) with `SupaSocialsAuth`
+- User management
+- Automatic state handling
+- Beautiful Material Design UI
+- **NEW**: Success/error callbacks for custom redirection
+- No customization needed - just works!
+
+### 🎯 Callback Support (NEW!)
+
+The `BegaSupabaseAuth` widget now supports callbacks for custom handling of authentication events:
+
+```dart
+BegaSupabaseAuth(
+  supabaseUrl: "https://your-project.supabase.co",
+  supabaseAnonKey: "your-anon-key-here",
+  appTitle: "My App",
+  
+  // Success callbacks
+  onSignInSuccess: (user, message) {
+    print('User signed in: ${user.email}');
+    // Navigate to dashboard, update state, etc.
+  },
+  onSignUpSuccess: (user, message) {
+    print('User signed up: ${user.email}');
+    // Navigate to onboarding, send welcome email, etc.
+  },
+  onSocialAuthSuccess: (user, provider, message) {
+    print('Social auth success: $provider - ${user.email}');
+    // Handle different providers, link accounts, etc.
+  },
+  onSignOutSuccess: (message) {
+    print('User signed out');
+    // Clear data, navigate to login, etc.
+  },
+  
+  // Error callbacks
+  onAuthError: (error, message) {
+    print('Auth error: $error');
+    // Show error dialog, retry logic, etc.
+  },
+  onSocialAuthError: (error, provider, message) {
+    print('Social auth error: $provider - $error');
+    // Provider-specific error handling, fallback options, etc.
+  },
+)
+```
+
+**Perfect for:**
+- Custom navigation after authentication
+- State management integration
+- Error handling and retry logic
+- Analytics and logging
+- User onboarding flows
+- Provider-specific logic
+
+### 🔧 Advanced Usage (Optional)
+
+If you need more control, you can use the individual components:
+
+#### 1. Environment Setup
 
 Create a `.env` file in your project root:
 
 ```env
-# Supabase Configuration
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
-
-# OAuth Provider Configuration (Optional)
-GOOGLE_CLIENT_ID=your_google_client_id
-GITHUB_CLIENT_ID=your_github_client_id
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
-### 2. Initialize the Package
+#### 2. Initialize the Package
+
+```dart
+import 'package:bega_supabase_auth/bega_supabase_auth.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Load environment variables
+  await EnvConfig.load();
+  
+  // Initialize Supabase
+  await BegaSupabaseConfig.initialize(
+    supabaseUrl: EnvConfig.supabaseUrl,
+    supabaseAnonKey: EnvConfig.supabaseAnonKey,
+  );
+  
+  runApp(MyApp());
+}
+```
+
+#### 3. Setup BLoC Provider
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bega_supabase_auth/bega_supabase_auth.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize environment configuration
-  await EnvConfig.initialize();
-  
-  runApp(MyApp());
-}
-```
-
-### 3. Setup BLoC Provider
-
-```dart
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthBloc(
-        authUseCases: AuthUseCases(
-          authRepository: AuthRepository(),
-          socialAuthRepository: SocialAuthRepository(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => AuthBloc(
+            authRepository: AuthRepository(),
+            socialAuthRepository: SocialAuthRepository(),
+          ),
         ),
-      ),
+      ],
       child: MaterialApp(
         home: AuthWrapper(),
       ),
@@ -82,10 +174,74 @@ class MyApp extends StatelessWidget {
 }
 ```
 
-### 4. Use Authentication
+#### 4. Use Individual Widgets
 
 ```dart
-class AuthScreen extends StatelessWidget {
+// Simple authentication form
+AuthForm()
+
+// Social authentication buttons
+SocialAuthButtons()
+
+// Complete authentication screen
+BegaAuthScreen()
+
+// Custom authentication wrapper
+BegaAuthWrapper(
+  authenticatedWidget: HomeScreen(),
+  unauthenticatedWidget: LoginScreen(),
+)
+```
+
+## Architecture
+
+This package follows Clean Architecture principles:
+
+```
+lib/
+├── src/
+│   ├── config/          # Environment configuration
+│   ├── data/            # Data layer (repositories)
+│   ├── domain/          # Domain layer (entities, use cases)
+│   └── presentation/    # Presentation layer (BLoC, widgets)
+└── bega_supabase_auth.dart
+```
+
+### Key Components
+
+- **EnvConfig**: Environment variable management
+- **AuthBloc**: BLoC for authentication state management
+- **AuthRepository**: Data access for authentication
+- **AuthUser**: Domain entity for user data
+- **AuthForm**: Email/password authentication widget
+- **SocialAuthButtons**: Social authentication widget
+
+## Usage Examples
+
+### Basic Authentication
+
+```dart
+class LoginScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Login')),
+      body: Column(
+        children: [
+          AuthForm(),
+          SizedBox(height: 20),
+          SocialAuthButtons(),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Custom Authentication Flow
+
+```dart
+class CustomAuthScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
@@ -94,6 +250,8 @@ class AuthScreen extends StatelessWidget {
           return CircularProgressIndicator();
         } else if (state is AuthAuthenticated) {
           return HomeScreen(user: state.user);
+        } else if (state is AuthFailure) {
+          return ErrorWidget(message: state.error.message);
         } else {
           return LoginForm();
         }
@@ -101,8 +259,21 @@ class AuthScreen extends StatelessWidget {
     );
   }
 }
+```
 
-// Sign in with email/password
+### Manual Authentication
+
+```dart
+// Sign up
+context.read<AuthBloc>().add(
+  AuthSignUpRequested(
+    email: 'user@example.com',
+    password: 'password123',
+    metadata: {'username': 'johndoe'},
+  ),
+);
+
+// Sign in
 context.read<AuthBloc>().add(
   AuthSignInRequested(
     email: 'user@example.com',
@@ -110,122 +281,74 @@ context.read<AuthBloc>().add(
   ),
 );
 
-// Sign up with email/password
-context.read<AuthBloc>().add(
-  AuthSignUpRequested(
-    email: 'user@example.com',
-    password: 'password123',
-  ),
-);
-
-// Social authentication
+// Social sign in
 context.read<AuthBloc>().add(AuthGoogleSignInRequested());
-context.read<AuthBloc>().add(AuthGitHubSignInRequested());
-context.read<AuthBloc>().add(AuthAppleSignInRequested());
 
 // Sign out
-context.read<AuthBloc>().add(AuthSignOutRequested());
+context.read<AuthBloc>().add(LogoutRequested());
 ```
 
-## Architecture
+## Configuration
 
-This package follows Clean Architecture principles with three main layers:
+### Environment Variables
 
-### Domain Layer
-- **AuthUser** - User entity with conversion from Supabase User
-- **AuthResult** - Result wrapper for authentication operations
-- **AuthError** - Custom error types and messages
-- **AuthUseCases** - Business logic for authentication operations
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `SUPABASE_URL` | Your Supabase project URL | Yes |
+| `SUPABASE_ANON_KEY` | Your Supabase anonymous key | Yes |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID | No |
+| `GITHUB_CLIENT_ID` | GitHub OAuth client ID | No |
 
-### Data Layer
-- **AuthRepository** - Email/password authentication with Supabase
-- **SocialAuthRepository** - Social authentication providers
-- **EnvConfig** - Environment variable management
-
-### Presentation Layer
-- **AuthBloc** - BLoC for state management
-- **AuthEvent** - Events for user actions
-- **AuthState** - States representing authentication status
-
-## Available Events
-
-- `AuthCheckRequested()` - Check current authentication status
-- `AuthSignUpRequested(email, password, metadata?)` - Sign up with email/password
-- `AuthSignInRequested(email, password)` - Sign in with email/password
-- `AuthSignOutRequested()` - Sign out current user
-- `AuthGoogleSignInRequested()` - Sign in with Google
-- `AuthGitHubSignInRequested()` - Sign in with GitHub
-- `AuthAppleSignInRequested()` - Sign in with Apple
-- `AuthPasswordResetRequested(email)` - Send password reset email
-- `AuthPasswordUpdateRequested(newPassword)` - Update user password
-- `AuthProfileUpdateRequested(email?, password?, metadata?)` - Update user profile
-- `AuthAccountDeletionRequested()` - Delete user account
-- `AuthSessionRefreshRequested()` - Refresh authentication session
-- `AuthStateCleared()` - Clear current state
-
-## Available States
-
-- `AuthInitial()` - Initial state
-- `AuthLoading()` - Loading state during operations
-- `AuthAuthenticated(user)` - User is authenticated
-- `AuthUnauthenticated(message?)` - User is not authenticated
-- `AuthFailure(error)` - Authentication failed
-- `AuthSuccess(message)` - Operation completed successfully
-- `AuthSocialSignInInitiated(provider, message)` - Social sign in initiated
-
-## Social Authentication
-
-The package supports multiple social authentication providers:
-
-- **Google** - Requires Google OAuth setup
-- **GitHub** - Requires GitHub OAuth setup
-- **Apple** - Requires Apple Sign In setup
-- **Facebook** - Requires Facebook OAuth setup
-- **Twitter** - Requires Twitter OAuth setup
-- **Discord** - Requires Discord OAuth setup
-
-### Setup Social Authentication
-
-1. Configure OAuth providers in your Supabase dashboard
-2. Add client IDs to your `.env` file
-3. Use the corresponding events in your app
-
-## Error Handling
-
-The package provides comprehensive error handling with custom error types:
+### Widget Customization
 
 ```dart
-// Listen to errors
-BlocListener<AuthBloc, AuthState>(
-  listener: (context, state) {
-    if (state is AuthFailure) {
-      // Handle error
-      showErrorDialog(state.error.message);
-    }
-  },
-  child: YourWidget(),
-);
+AuthForm(
+  metadataFields: [
+    MetaDataField(
+      prefixIcon: Icon(Icons.person),
+      label: 'Username',
+      key: 'username',
+    ),
+  ],
+  style: AuthFormStyle(
+    padding: EdgeInsets.all(20),
+  ),
+)
+
+SocialAuthButtons(
+  providers: [
+    SocialProvider.google,
+    SocialProvider.github,
+    SocialProvider.apple,
+  ],
+  style: SocialAuthButtonsStyle(
+    showDivider: true,
+    padding: EdgeInsets.all(16),
+  ),
+)
 ```
 
 ## Testing
 
-The package includes comprehensive unit tests. Run tests with:
+Run the test suite:
 
 ```bash
 flutter test
 ```
 
+The package includes comprehensive tests for:
+- BLoC state management
+- Repository implementations
+- Widget functionality
+- Error handling
+
 ## Example App
 
-A complete example app is included in the `example/` directory. To run it:
-
-1. Update the `.env` file with your Supabase credentials
-2. Run the example:
-
-```bash
-cd example
-flutter run
-```
+Check out the `example/` directory for a complete working example that demonstrates:
+- Environment configuration
+- BLoC setup
+- Authentication flows
+- Widget usage
 
 ## Contributing
 
@@ -241,15 +364,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-If you encounter any issues or have questions, please file an issue on the GitHub repository.
+If you encounter any issues or have questions, please:
+1. Check the [Issues](https://github.com/your-username/bega_supabase_auth/issues) page
+2. Create a new issue with detailed information
+3. Join our community discussions
 
 ## Changelog
 
-### 0.0.1
-- Initial release
-- Email/password authentication
-- Social authentication (Google, GitHub, Apple, Facebook, Twitter, Discord)
-- BLoC state management
-- Environment configuration
-- Comprehensive testing
-- Example app
+See [CHANGELOG.md](CHANGELOG.md) for a list of changes and version history.

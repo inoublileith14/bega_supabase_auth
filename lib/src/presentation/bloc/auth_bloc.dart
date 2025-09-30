@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState, AuthUser;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    hide AuthState, AuthUser;
 import 'package:gotrue/gotrue.dart' as gotrue;
 import '../../domain/use_cases/auth_use_cases.dart';
 import '../../domain/auth_user.dart';
 import '../../domain/auth_result.dart';
+import '../../data/auth_repository.dart';
+import '../../data/social_auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -14,10 +17,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   StreamSubscription<gotrue.AuthState>? _authStateSubscription;
 
   AuthBloc({
-    required AuthUseCases authUseCases,
-  }) : _authUseCases = authUseCases,
-       super(const AuthInitial()) {
-    
+    required AuthRepository authRepository,
+    required SocialAuthRepository socialAuthRepository,
+  }) : _authUseCases = AuthUseCases(
+          authRepository: authRepository,
+          socialAuthRepository: socialAuthRepository,
+        ),
+        super(const AuthInitial()) {
     // Register event handlers
     on<AuthCheckRequested>(_onAuthCheckRequested);
     on<AuthSignUpRequested>(_onAuthSignUpRequested);
@@ -25,7 +31,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthGoogleSignInRequested>(_onAuthGoogleSignInRequested);
     on<AuthGitHubSignInRequested>(_onAuthGitHubSignInRequested);
     on<AuthAppleSignInRequested>(_onAuthAppleSignInRequested);
+    on<AuthFacebookSignInRequested>(_onAuthFacebookSignInRequested);
+    on<AuthTwitterSignInRequested>(_onAuthTwitterSignInRequested);
+    on<AuthDiscordSignInRequested>(_onAuthDiscordSignInRequested);
     on<AuthSignOutRequested>(_onAuthSignOutRequested);
+    on<LogoutRequested>(_onLogoutRequested);
     on<AuthPasswordResetRequested>(_onAuthPasswordResetRequested);
     on<AuthPasswordUpdateRequested>(_onAuthPasswordUpdateRequested);
     on<AuthProfileUpdateRequested>(_onAuthProfileUpdateRequested);
@@ -39,16 +49,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   /// Listen to authentication state changes from Supabase
   void _listenToAuthStateChanges() {
-    _authStateSubscription = Supabase.instance.client.auth.onAuthStateChange.listen(
-      (gotrue.AuthState authState) {
-        if (authState.event == AuthChangeEvent.signedIn && authState.session?.user != null) {
-          final user = AuthUser.fromSupabaseUser(authState.session!.user!);
-          emit(AuthAuthenticated(user: user));
-        } else if (authState.event == AuthChangeEvent.signedOut) {
-          emit(const AuthUnauthenticated());
-        }
-      },
-    );
+    _authStateSubscription = Supabase.instance.client.auth.onAuthStateChange
+        .listen((gotrue.AuthState authState) {
+          if (authState.event == AuthChangeEvent.signedIn &&
+              authState.session?.user != null) {
+            final user = AuthUser.fromSupabaseUser(authState.session!.user!);
+            emit(AuthAuthenticated(user: user));
+          } else if (authState.event == AuthChangeEvent.signedOut) {
+            emit(const AuthUnauthenticated());
+          }
+        });
   }
 
   /// Handle authentication check request
@@ -58,7 +68,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       if (_authUseCases.isAuthenticated()) {
         final user = _authUseCases.getCurrentUser();
         if (user != null) {
@@ -70,10 +80,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(const AuthUnauthenticated());
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Failed to check authentication status',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Failed to check authentication status',
+        ),
+      );
     }
   }
 
@@ -84,7 +96,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.signUp(
         email: event.email,
         password: event.password,
@@ -93,24 +105,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       if (result.isSuccess) {
         if (result.user != null) {
-          emit(AuthAuthenticated(
-            user: result.user!,
-            message: result.message,
-          ));
+          emit(AuthAuthenticated(user: result.user!, message: result.message));
         } else {
           emit(AuthSuccess(message: result.message ?? 'Sign up successful'));
         }
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Sign up failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Sign up failed',
+        ),
+      );
     }
   }
 
@@ -121,28 +129,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.signInWithPassword(
         email: event.email,
         password: event.password,
       );
 
       if (result.isSuccess && result.user != null) {
-        emit(AuthAuthenticated(
-          user: result.user!,
-          message: result.message,
-        ));
+        emit(AuthAuthenticated(user: result.user!, message: result.message));
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Sign in failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Sign in failed',
+        ),
+      );
     }
   }
 
@@ -153,25 +157,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.signInWithGoogle();
 
       if (result.isSuccess) {
-        emit(AuthSocialSignInInitiated(
-          provider: 'Google',
-          message: result.message ?? 'Google sign in initiated',
-        ));
+        emit(
+          AuthSocialSignInInitiated(
+            provider: 'Google',
+            message: result.message ?? 'Google sign in initiated',
+          ),
+        );
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Google sign in failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Google sign in failed',
+        ),
+      );
     }
   }
 
@@ -182,25 +187,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.signInWithGitHub();
 
       if (result.isSuccess) {
-        emit(AuthSocialSignInInitiated(
-          provider: 'GitHub',
-          message: result.message ?? 'GitHub sign in initiated',
-        ));
+        emit(
+          AuthSocialSignInInitiated(
+            provider: 'GitHub',
+            message: result.message ?? 'GitHub sign in initiated',
+          ),
+        );
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'GitHub sign in failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'GitHub sign in failed',
+        ),
+      );
     }
   }
 
@@ -211,25 +217,116 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.signInWithApple();
 
       if (result.isSuccess) {
-        emit(AuthSocialSignInInitiated(
-          provider: 'Apple',
-          message: result.message ?? 'Apple sign in initiated',
-        ));
+        emit(
+          AuthSocialSignInInitiated(
+            provider: 'Apple',
+            message: result.message ?? 'Apple sign in initiated',
+          ),
+        );
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Apple sign in failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Apple sign in failed',
+        ),
+      );
+    }
+  }
+
+  /// Handle Facebook sign in request
+  Future<void> _onAuthFacebookSignInRequested(
+    AuthFacebookSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      emit(const AuthLoading());
+
+      final result = await _authUseCases.signInWithFacebook();
+
+      if (result.isSuccess) {
+        emit(
+          AuthSocialSignInInitiated(
+            provider: 'Facebook',
+            message: result.message ?? 'Facebook sign in initiated',
+          ),
+        );
+      } else {
+        emit(AuthFailure(error: result.error!, message: result.message));
+      }
+    } catch (e) {
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Facebook sign in failed',
+        ),
+      );
+    }
+  }
+
+  /// Handle Twitter sign in request
+  Future<void> _onAuthTwitterSignInRequested(
+    AuthTwitterSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      emit(const AuthLoading());
+
+      final result = await _authUseCases.signInWithTwitter();
+
+      if (result.isSuccess) {
+        emit(
+          AuthSocialSignInInitiated(
+            provider: 'Twitter',
+            message: result.message ?? 'Twitter sign in initiated',
+          ),
+        );
+      } else {
+        emit(AuthFailure(error: result.error!, message: result.message));
+      }
+    } catch (e) {
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Twitter sign in failed',
+        ),
+      );
+    }
+  }
+
+  /// Handle Discord sign in request
+  Future<void> _onAuthDiscordSignInRequested(
+    AuthDiscordSignInRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      emit(const AuthLoading());
+
+      final result = await _authUseCases.signInWithDiscord();
+
+      if (result.isSuccess) {
+        emit(
+          AuthSocialSignInInitiated(
+            provider: 'Discord',
+            message: result.message ?? 'Discord sign in initiated',
+          ),
+        );
+      } else {
+        emit(AuthFailure(error: result.error!, message: result.message));
+      }
+    } catch (e) {
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Discord sign in failed',
+        ),
+      );
     }
   }
 
@@ -240,23 +337,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.signOut();
 
       if (result.isSuccess) {
         emit(AuthUnauthenticated(message: result.message));
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Sign out failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Sign out failed',
+        ),
+      );
     }
+  }
+
+  /// Handle logout request (alias for sign out)
+  Future<void> _onLogoutRequested(
+    LogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    await _onAuthSignOutRequested(const AuthSignOutRequested(), emit);
   }
 
   /// Handle password reset request
@@ -266,22 +370,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.resetPassword(event.email);
 
       if (result.isSuccess) {
-        emit(AuthSuccess(message: result.message ?? 'Password reset email sent'));
+        emit(
+          AuthSuccess(message: result.message ?? 'Password reset email sent'),
+        );
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Password reset failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Password reset failed',
+        ),
+      );
     }
   }
 
@@ -292,29 +397,29 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.updatePassword(event.newPassword);
 
       if (result.isSuccess) {
         if (result.user != null) {
-          emit(AuthAuthenticated(
-            user: result.user!,
-            message: result.message,
-          ));
+          emit(AuthAuthenticated(user: result.user!, message: result.message));
         } else {
-          emit(AuthSuccess(message: result.message ?? 'Password updated successfully'));
+          emit(
+            AuthSuccess(
+              message: result.message ?? 'Password updated successfully',
+            ),
+          );
         }
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Password update failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Password update failed',
+        ),
+      );
     }
   }
 
@@ -325,7 +430,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.updateProfile(
         email: event.email,
         password: event.password,
@@ -333,21 +438,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
 
       if (result.isSuccess && result.user != null) {
-        emit(AuthAuthenticated(
-          user: result.user!,
-          message: result.message,
-        ));
+        emit(AuthAuthenticated(user: result.user!, message: result.message));
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Profile update failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Profile update failed',
+        ),
+      );
     }
   }
 
@@ -358,22 +459,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.deleteAccount();
 
       if (result.isSuccess) {
         emit(AuthUnauthenticated(message: result.message));
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Account deletion failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Account deletion failed',
+        ),
+      );
     }
   }
 
@@ -384,33 +484,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     try {
       emit(const AuthLoading());
-      
+
       final result = await _authUseCases.refreshSession();
 
       if (result.isSuccess && result.user != null) {
-        emit(AuthAuthenticated(
-          user: result.user!,
-          message: result.message,
-        ));
+        emit(AuthAuthenticated(user: result.user!, message: result.message));
       } else {
-        emit(AuthFailure(
-          error: result.error!,
-          message: result.message,
-        ));
+        emit(AuthFailure(error: result.error!, message: result.message));
       }
     } catch (e) {
-      emit(AuthFailure(
-        error: AuthError.fromSupabaseException(e),
-        message: 'Session refresh failed',
-      ));
+      emit(
+        AuthFailure(
+          error: AuthError.fromSupabaseException(e),
+          message: 'Session refresh failed',
+        ),
+      );
     }
   }
 
   /// Handle state clear request
-  void _onAuthStateCleared(
-    AuthStateCleared event,
-    Emitter<AuthState> emit,
-  ) {
+  void _onAuthStateCleared(AuthStateCleared event, Emitter<AuthState> emit) {
     emit(const AuthInitial());
   }
 

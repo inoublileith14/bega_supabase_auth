@@ -6,6 +6,7 @@ class AuthUser {
   final String? email;
   final String? phone;
   final String? displayName;
+  final String? username;
   final String? avatarUrl;
   final Map<String, dynamic>? metadata;
   final DateTime? createdAt;
@@ -20,6 +21,7 @@ class AuthUser {
     this.email,
     this.phone,
     this.displayName,
+    this.username,
     this.avatarUrl,
     this.metadata,
     this.createdAt,
@@ -36,12 +38,20 @@ class AuthUser {
       id: user.id,
       email: user.email,
       phone: user.phone,
-      displayName: user.userMetadata?['display_name'] ?? user.userMetadata?['full_name'],
+      displayName:
+          user.userMetadata?['display_name'] ?? user.userMetadata?['full_name'],
+      username: user.userMetadata?['username'],
       avatarUrl: user.userMetadata?['avatar_url'],
       metadata: user.userMetadata,
-      createdAt: user.createdAt != null ? DateTime.parse(user.createdAt!) : null,
-      updatedAt: user.updatedAt != null ? DateTime.parse(user.updatedAt!) : null,
-      lastSignInAt: user.lastSignInAt != null ? DateTime.parse(user.lastSignInAt!) : null,
+      createdAt: user.createdAt != null
+          ? DateTime.parse(user.createdAt!)
+          : null,
+      updatedAt: user.updatedAt != null
+          ? DateTime.parse(user.updatedAt!)
+          : null,
+      lastSignInAt: user.lastSignInAt != null
+          ? DateTime.parse(user.lastSignInAt!)
+          : null,
       role: user.role,
       isEmailConfirmed: user.emailConfirmedAt != null,
       isPhoneConfirmed: user.phoneConfirmedAt != null,
@@ -55,11 +65,18 @@ class AuthUser {
       email: map['email'] as String?,
       phone: map['phone'] as String?,
       displayName: map['display_name'] as String?,
+      username: map['username'] as String?,
       avatarUrl: map['avatar_url'] as String?,
       metadata: map['metadata'] as Map<String, dynamic>?,
-      createdAt: map['created_at'] != null ? DateTime.parse(map['created_at'] as String) : null,
-      updatedAt: map['updated_at'] != null ? DateTime.parse(map['updated_at'] as String) : null,
-      lastSignInAt: map['last_sign_in_at'] != null ? DateTime.parse(map['last_sign_in_at'] as String) : null,
+      createdAt: map['created_at'] != null
+          ? DateTime.parse(map['created_at'] as String)
+          : null,
+      updatedAt: map['updated_at'] != null
+          ? DateTime.parse(map['updated_at'] as String)
+          : null,
+      lastSignInAt: map['last_sign_in_at'] != null
+          ? DateTime.parse(map['last_sign_in_at'] as String)
+          : null,
       role: map['role'] as String?,
       isEmailConfirmed: map['is_email_confirmed'] as bool? ?? false,
       isPhoneConfirmed: map['is_phone_confirmed'] as bool? ?? false,
@@ -73,6 +90,7 @@ class AuthUser {
       'email': email,
       'phone': phone,
       'display_name': displayName,
+      'username': username,
       'avatar_url': avatarUrl,
       'metadata': metadata,
       'created_at': createdAt?.toIso8601String(),
@@ -90,6 +108,7 @@ class AuthUser {
     String? email,
     String? phone,
     String? displayName,
+    String? username,
     String? avatarUrl,
     Map<String, dynamic>? metadata,
     DateTime? createdAt,
@@ -104,6 +123,7 @@ class AuthUser {
       email: email ?? this.email,
       phone: phone ?? this.phone,
       displayName: displayName ?? this.displayName,
+      username: username ?? this.username,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       metadata: metadata ?? this.metadata,
       createdAt: createdAt ?? this.createdAt,

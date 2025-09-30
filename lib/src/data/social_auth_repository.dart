@@ -144,17 +144,17 @@ class SocialAuthRepository {
   /// Get available social providers based on configuration
   List<String> getAvailableProviders() {
     final providers = <String>[];
-    
+
     if (isProviderConfigured('google')) {
       providers.add('google');
     }
     if (isProviderConfigured('github')) {
       providers.add('github');
     }
-    
+
     // Add other providers that don't require additional configuration
     providers.addAll(['apple', 'facebook', 'twitter', 'discord']);
-    
+
     return providers;
   }
 }

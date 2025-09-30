@@ -2,16 +2,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:bega_supabase_auth/src/domain/use_cases/auth_use_cases.dart';
-import 'package:bega_supabase_auth/src/domain/auth_user.dart';
 import 'package:bega_supabase_auth/src/domain/auth_result.dart';
 import 'package:bega_supabase_auth/src/data/auth_repository.dart';
 import 'package:bega_supabase_auth/src/data/social_auth_repository.dart';
 
 // Mock classes
 class MockAuthRepository extends Mock implements AuthRepository {}
+
 class MockSocialAuthRepository extends Mock implements SocialAuthRepository {}
+
 class MockUser extends Mock implements User {}
+
 class MockAuthResponse extends Mock implements AuthResponse {}
+
 class MockUserResponse extends Mock implements UserResponse {}
 
 void main() {
@@ -41,11 +44,13 @@ void main() {
         final mockResponse = MockAuthResponse();
         when(() => mockResponse.user).thenReturn(mockUser);
 
-        when(() => mockAuthRepository.signUp(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-          data: any(named: 'data'),
-        )).thenAnswer((_) async => mockResponse);
+        when(
+          () => mockAuthRepository.signUp(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            data: any(named: 'data'),
+          ),
+        ).thenAnswer((_) async => mockResponse);
 
         // Act
         final result = await authUseCases.signUp(
@@ -62,11 +67,13 @@ void main() {
 
       test('should return failure when sign up fails', () async {
         // Arrange
-        when(() => mockAuthRepository.signUp(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-          data: any(named: 'data'),
-        )).thenThrow(Exception('Sign up failed'));
+        when(
+          () => mockAuthRepository.signUp(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            data: any(named: 'data'),
+          ),
+        ).thenThrow(Exception('Sign up failed'));
 
         // Act
         final result = await authUseCases.signUp(
@@ -93,10 +100,12 @@ void main() {
         final mockResponse = MockAuthResponse();
         when(() => mockResponse.user).thenReturn(mockUser);
 
-        when(() => mockAuthRepository.signInWithPassword(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-        )).thenAnswer((_) async => mockResponse);
+        when(
+          () => mockAuthRepository.signInWithPassword(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          ),
+        ).thenAnswer((_) async => mockResponse);
 
         // Act
         final result = await authUseCases.signInWithPassword(
@@ -113,10 +122,12 @@ void main() {
 
       test('should return failure when sign in fails', () async {
         // Arrange
-        when(() => mockAuthRepository.signInWithPassword(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-        )).thenThrow(Exception('Invalid credentials'));
+        when(
+          () => mockAuthRepository.signInWithPassword(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          ),
+        ).thenThrow(Exception('Invalid credentials'));
 
         // Act
         final result = await authUseCases.signInWithPassword(
@@ -133,8 +144,9 @@ void main() {
     group('Social Sign In', () {
       test('should return success when Google sign in is initiated', () async {
         // Arrange
-        when(() => mockSocialAuthRepository.signInWithGoogle())
-            .thenAnswer((_) async => true);
+        when(
+          () => mockSocialAuthRepository.signInWithGoogle(),
+        ).thenAnswer((_) async => true);
 
         // Act
         final result = await authUseCases.signInWithGoogle();
@@ -146,8 +158,9 @@ void main() {
 
       test('should return success when GitHub sign in is initiated', () async {
         // Arrange
-        when(() => mockSocialAuthRepository.signInWithGitHub())
-            .thenAnswer((_) async => true);
+        when(
+          () => mockSocialAuthRepository.signInWithGitHub(),
+        ).thenAnswer((_) async => true);
 
         // Act
         final result = await authUseCases.signInWithGitHub();
@@ -159,8 +172,9 @@ void main() {
 
       test('should return success when Apple sign in is initiated', () async {
         // Arrange
-        when(() => mockSocialAuthRepository.signInWithApple())
-            .thenAnswer((_) async => true);
+        when(
+          () => mockSocialAuthRepository.signInWithApple(),
+        ).thenAnswer((_) async => true);
 
         // Act
         final result = await authUseCases.signInWithApple();
@@ -172,8 +186,9 @@ void main() {
 
       test('should return failure when social sign in fails', () async {
         // Arrange
-        when(() => mockSocialAuthRepository.signInWithGoogle())
-            .thenThrow(Exception('Social sign in failed'));
+        when(
+          () => mockSocialAuthRepository.signInWithGoogle(),
+        ).thenThrow(Exception('Social sign in failed'));
 
         // Act
         final result = await authUseCases.signInWithGoogle();
@@ -187,8 +202,7 @@ void main() {
     group('Sign Out', () {
       test('should return success when sign out is successful', () async {
         // Arrange
-        when(() => mockAuthRepository.signOut())
-            .thenAnswer((_) async {});
+        when(() => mockAuthRepository.signOut()).thenAnswer((_) async {});
 
         // Act
         final result = await authUseCases.signOut();
@@ -200,8 +214,9 @@ void main() {
 
       test('should return failure when sign out fails', () async {
         // Arrange
-        when(() => mockAuthRepository.signOut())
-            .thenThrow(Exception('Sign out failed'));
+        when(
+          () => mockAuthRepository.signOut(),
+        ).thenThrow(Exception('Sign out failed'));
 
         // Act
         final result = await authUseCases.signOut();
@@ -215,8 +230,9 @@ void main() {
     group('Password Management', () {
       test('should return success when password reset is successful', () async {
         // Arrange
-        when(() => mockAuthRepository.resetPassword(any()))
-            .thenAnswer((_) async {});
+        when(
+          () => mockAuthRepository.resetPassword(any()),
+        ).thenAnswer((_) async {});
 
         // Act
         final result = await authUseCases.resetPassword('test@example.com');
@@ -226,28 +242,32 @@ void main() {
         expect(result.message, contains('Password reset email sent'));
       });
 
-      test('should return success when password update is successful', () async {
-        // Arrange
-        final mockUser = MockUser();
-        when(() => mockUser.id).thenReturn('test-id');
-        when(() => mockUser.email).thenReturn('test@example.com');
-        when(() => mockUser.createdAt).thenReturn('2023-01-01T00:00:00Z');
-        when(() => mockUser.userMetadata).thenReturn({});
+      test(
+        'should return success when password update is successful',
+        () async {
+          // Arrange
+          final mockUser = MockUser();
+          when(() => mockUser.id).thenReturn('test-id');
+          when(() => mockUser.email).thenReturn('test@example.com');
+          when(() => mockUser.createdAt).thenReturn('2023-01-01T00:00:00Z');
+          when(() => mockUser.userMetadata).thenReturn({});
 
-        final mockResponse = MockUserResponse();
-        when(() => mockResponse.user).thenReturn(mockUser);
+          final mockResponse = MockUserResponse();
+          when(() => mockResponse.user).thenReturn(mockUser);
 
-        when(() => mockAuthRepository.updatePassword(any()))
-            .thenAnswer((_) async => mockResponse);
+          when(
+            () => mockAuthRepository.updatePassword(any()),
+          ).thenAnswer((_) async => mockResponse);
 
-        // Act
-        final result = await authUseCases.updatePassword('newpassword');
+          // Act
+          final result = await authUseCases.updatePassword('newpassword');
 
-        // Assert
-        expect(result.isSuccess, isTrue);
-        expect(result.user, isNotNull);
-        expect(result.message, equals('Password updated successfully'));
-      });
+          // Assert
+          expect(result.isSuccess, isTrue);
+          expect(result.user, isNotNull);
+          expect(result.message, equals('Password updated successfully'));
+        },
+      );
     });
 
     group('Profile Management', () {
@@ -262,11 +282,13 @@ void main() {
         final mockResponse = MockUserResponse();
         when(() => mockResponse.user).thenReturn(mockUser);
 
-        when(() => mockAuthRepository.updateUser(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-          data: any(named: 'data'),
-        )).thenAnswer((_) async => mockResponse);
+        when(
+          () => mockAuthRepository.updateUser(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+            data: any(named: 'data'),
+          ),
+        ).thenAnswer((_) async => mockResponse);
 
         // Act
         final result = await authUseCases.updateProfile(
@@ -280,43 +302,49 @@ void main() {
         expect(result.message, equals('Profile updated successfully'));
       });
 
-      test('should return success when account deletion is successful', () async {
-        // Arrange
-        when(() => mockAuthRepository.deleteUser())
-            .thenAnswer((_) async {});
+      test(
+        'should return success when account deletion is successful',
+        () async {
+          // Arrange
+          when(() => mockAuthRepository.deleteUser()).thenAnswer((_) async {});
 
-        // Act
-        final result = await authUseCases.deleteAccount();
+          // Act
+          final result = await authUseCases.deleteAccount();
 
-        // Assert
-        expect(result.isSuccess, isTrue);
-        expect(result.message, equals('Account deleted successfully'));
-      });
+          // Assert
+          expect(result.isSuccess, isTrue);
+          expect(result.message, equals('Account deleted successfully'));
+        },
+      );
     });
 
     group('Session Management', () {
-      test('should return success when session refresh is successful', () async {
-        // Arrange
-        final mockUser = MockUser();
-        when(() => mockUser.id).thenReturn('test-id');
-        when(() => mockUser.email).thenReturn('test@example.com');
-        when(() => mockUser.createdAt).thenReturn('2023-01-01T00:00:00Z');
-        when(() => mockUser.userMetadata).thenReturn({});
+      test(
+        'should return success when session refresh is successful',
+        () async {
+          // Arrange
+          final mockUser = MockUser();
+          when(() => mockUser.id).thenReturn('test-id');
+          when(() => mockUser.email).thenReturn('test@example.com');
+          when(() => mockUser.createdAt).thenReturn('2023-01-01T00:00:00Z');
+          when(() => mockUser.userMetadata).thenReturn({});
 
-        final mockResponse = MockAuthResponse();
-        when(() => mockResponse.user).thenReturn(mockUser);
+          final mockResponse = MockAuthResponse();
+          when(() => mockResponse.user).thenReturn(mockUser);
 
-        when(() => mockAuthRepository.refreshSession())
-            .thenAnswer((_) async => mockResponse);
+          when(
+            () => mockAuthRepository.refreshSession(),
+          ).thenAnswer((_) async => mockResponse);
 
-        // Act
-        final result = await authUseCases.refreshSession();
+          // Act
+          final result = await authUseCases.refreshSession();
 
-        // Assert
-        expect(result.isSuccess, isTrue);
-        expect(result.user, isNotNull);
-        expect(result.message, equals('Session refreshed successfully'));
-      });
+          // Assert
+          expect(result.isSuccess, isTrue);
+          expect(result.user, isNotNull);
+          expect(result.message, equals('Session refreshed successfully'));
+        },
+      );
     });
 
     group('Current User', () {

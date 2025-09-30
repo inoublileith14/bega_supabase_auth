@@ -9,6 +9,7 @@ import 'package:bega_supabase_auth/src/domain/use_cases/auth_use_cases.dart';
 
 // Mock classes
 class MockAuthBloc extends Mock implements AuthBloc {}
+
 class MockAuthUseCases extends Mock implements AuthUseCases {}
 
 void main() {
@@ -18,7 +19,9 @@ void main() {
     setUp(() {
       mockAuthBloc = MockAuthBloc();
       when(() => mockAuthBloc.state).thenReturn(const AuthInitial());
-      when(() => mockAuthBloc.stream).thenAnswer((_) => Stream.value(const AuthInitial()));
+      when(
+        () => mockAuthBloc.stream,
+      ).thenAnswer((_) => Stream.value(const AuthInitial()));
     });
 
     Widget createWidgetUnderTest({
@@ -33,16 +36,15 @@ void main() {
         home: BlocProvider<AuthBloc>.value(
           value: mockAuthBloc,
           child: Scaffold(
-            body: SocialAuthButtons(
-              providers: providers,
-              style: style,
-            ),
+            body: SocialAuthButtons(providers: providers, style: style),
           ),
         ),
       );
     }
 
-    testWidgets('displays default social providers', (WidgetTester tester) async {
+    testWidgets('displays default social providers', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(createWidgetUnderTest());
 
       expect(find.text('Google'), findsOneWidget);
@@ -50,10 +52,14 @@ void main() {
       expect(find.text('Apple'), findsOneWidget);
     });
 
-    testWidgets('displays only specified providers', (WidgetTester tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(
-        providers: [SocialProvider.google, SocialProvider.facebook],
-      ));
+    testWidgets('displays only specified providers', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        createWidgetUnderTest(
+          providers: [SocialProvider.google, SocialProvider.facebook],
+        ),
+      );
 
       expect(find.text('Google'), findsOneWidget);
       expect(find.text('Facebook'), findsOneWidget);
@@ -67,42 +73,57 @@ void main() {
       expect(find.text('Or sign in with:'), findsOneWidget);
     });
 
-    testWidgets('hides divider when showDivider is false', (WidgetTester tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(
-        style: const SocialAuthButtonsStyle(showDivider: false),
-      ));
+    testWidgets('hides divider when showDivider is false', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        createWidgetUnderTest(
+          style: const SocialAuthButtonsStyle(showDivider: false),
+        ),
+      );
 
       expect(find.text('Or sign in with:'), findsNothing);
     });
 
-    testWidgets('calls AuthBloc with correct event when Google button is tapped', (WidgetTester tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
+    testWidgets(
+      'calls AuthBloc with correct event when Google button is tapped',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(createWidgetUnderTest());
 
-      await tester.tap(find.text('Google'));
-      await tester.pump();
+        await tester.tap(find.text('Google'));
+        await tester.pump();
 
-      verify(() => mockAuthBloc.add(any())).called(1);
-    });
+        verify(() => mockAuthBloc.add(any())).called(1);
+      },
+    );
 
-    testWidgets('calls AuthBloc with correct event when GitHub button is tapped', (WidgetTester tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
+    testWidgets(
+      'calls AuthBloc with correct event when GitHub button is tapped',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(createWidgetUnderTest());
 
-      await tester.tap(find.text('GitHub'));
-      await tester.pump();
+        await tester.tap(find.text('GitHub'));
+        await tester.pump();
 
-      verify(() => mockAuthBloc.add(any())).called(1);
-    });
+        verify(() => mockAuthBloc.add(any())).called(1);
+      },
+    );
 
-    testWidgets('calls AuthBloc with correct event when Apple button is tapped', (WidgetTester tester) async {
-      await tester.pumpWidget(createWidgetUnderTest());
+    testWidgets(
+      'calls AuthBloc with correct event when Apple button is tapped',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(createWidgetUnderTest());
 
-      await tester.tap(find.text('Apple'));
-      await tester.pump();
+        await tester.tap(find.text('Apple'));
+        await tester.pump();
 
-      verify(() => mockAuthBloc.add(any())).called(1);
-    });
+        verify(() => mockAuthBloc.add(any())).called(1);
+      },
+    );
 
-    testWidgets('disables buttons when AuthBloc is in loading state', (WidgetTester tester) async {
+    testWidgets('disables buttons when AuthBloc is in loading state', (
+      WidgetTester tester,
+    ) async {
       when(() => mockAuthBloc.state).thenReturn(const AuthLoading());
 
       await tester.pumpWidget(createWidgetUnderTest());
@@ -116,7 +137,9 @@ void main() {
       expect(googleButton.onPressed, isNull);
     });
 
-    testWidgets('applies custom styling when provided', (WidgetTester tester) async {
+    testWidgets('applies custom styling when provided', (
+      WidgetTester tester,
+    ) async {
       final customStyle = const SocialAuthButtonsStyle(
         buttonWidth: 200,
         buttonHeight: 50,
@@ -131,22 +154,26 @@ void main() {
           matching: find.byType(ElevatedButton),
         ),
       );
-      
+
       // Check that the button has the custom styling applied
       expect(googleButton, isA<ElevatedButton>());
     });
 
-    testWidgets('displays all supported social providers', (WidgetTester tester) async {
-      await tester.pumpWidget(createWidgetUnderTest(
-        providers: [
-          SocialProvider.google,
-          SocialProvider.github,
-          SocialProvider.apple,
-          SocialProvider.facebook,
-          SocialProvider.twitter,
-          SocialProvider.discord,
-        ],
-      ));
+    testWidgets('displays all supported social providers', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        createWidgetUnderTest(
+          providers: [
+            SocialProvider.google,
+            SocialProvider.github,
+            SocialProvider.apple,
+            SocialProvider.facebook,
+            SocialProvider.twitter,
+            SocialProvider.discord,
+          ],
+        ),
+      );
 
       expect(find.text('Google'), findsOneWidget);
       expect(find.text('GitHub'), findsOneWidget);
@@ -171,7 +198,7 @@ void main() {
   group('SocialAuthButtonsStyle', () {
     test('defaultStyle returns default values', () {
       final style = SocialAuthButtonsStyle.defaultStyle();
-      
+
       expect(style.showDivider, isTrue);
       expect(style.dividerSpacing, isNull);
       expect(style.dividerColor, isNull);
@@ -189,7 +216,7 @@ void main() {
         buttonHeight: 40,
         spacing: 10,
       );
-      
+
       expect(style.showDivider, isFalse);
       expect(style.buttonWidth, 150);
       expect(style.buttonHeight, 40);

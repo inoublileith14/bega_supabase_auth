@@ -15,27 +15,13 @@ class AuthResult {
   });
 
   /// Create a successful authentication result
-  factory AuthResult.success({
-    AuthUser? user,
-    String? message,
-  }) {
-    return AuthResult._(
-      isSuccess: true,
-      user: user,
-      message: message,
-    );
+  factory AuthResult.success({AuthUser? user, String? message}) {
+    return AuthResult._(isSuccess: true, user: user, message: message);
   }
 
   /// Create a failed authentication result
-  factory AuthResult.failure({
-    required AuthError error,
-    String? message,
-  }) {
-    return AuthResult._(
-      isSuccess: false,
-      error: error,
-      message: message,
-    );
+  factory AuthResult.failure({required AuthError error, String? message}) {
+    return AuthResult._(isSuccess: false, error: error, message: message);
   }
 
   /// Check if the result is successful
@@ -83,10 +69,10 @@ class AuthError {
   /// Create AuthError from Supabase AuthException
   factory AuthError.fromSupabaseException(dynamic exception) {
     final message = exception.toString();
-    
+
     // Map common Supabase error messages to AuthErrorType
     AuthErrorType type = AuthErrorType.unknown;
-    if (message.contains('Invalid login credentials') || 
+    if (message.contains('Invalid login credentials') ||
         message.contains('Invalid email or password')) {
       type = AuthErrorType.invalidCredentials;
     } else if (message.contains('User not found')) {
@@ -105,24 +91,17 @@ class AuthError {
       type = AuthErrorType.operationNotAllowed;
     } else if (message.contains('Requires recent login')) {
       type = AuthErrorType.requiresRecentLogin;
-    } else if (message.contains('Network error') || 
-               message.contains('Connection failed')) {
+    } else if (message.contains('Network error') ||
+        message.contains('Connection failed')) {
       type = AuthErrorType.networkError;
     }
 
-    return AuthError(
-      type: type,
-      message: message,
-      originalError: exception,
-    );
+    return AuthError(type: type, message: message, originalError: exception);
   }
 
   /// Create AuthError from string message
   factory AuthError.fromMessage(String message, {AuthErrorType? type}) {
-    return AuthError(
-      type: type ?? AuthErrorType.unknown,
-      message: message,
-    );
+    return AuthError(type: type ?? AuthErrorType.unknown, message: message);
   }
 
   @override

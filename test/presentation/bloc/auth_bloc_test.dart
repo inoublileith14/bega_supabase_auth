@@ -1,8 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' hide AuthUser, AuthState;
-import 'package:bega_supabase_auth/src/presentation/bloc/auth_bloc.dart';
 import 'package:bega_supabase_auth/src/presentation/bloc/auth_event.dart';
 import 'package:bega_supabase_auth/src/presentation/bloc/auth_state.dart';
 import 'package:bega_supabase_auth/src/domain/use_cases/auth_use_cases.dart';
@@ -18,6 +15,7 @@ void main() {
 
     setUp(() {
       mockAuthUseCases = MockAuthUseCases();
+      // mockAuthUseCases will be used in future bloc instance tests
     });
 
     group('Events', () {
@@ -128,7 +126,7 @@ void main() {
       test('AuthAuthenticated should be equatable', () {
         final user1 = const AuthUser(id: 'test-id', email: 'test@example.com');
         final user2 = const AuthUser(id: 'test-id', email: 'test@example.com');
-        
+
         final state1 = AuthAuthenticated(user: user1);
         final state2 = AuthAuthenticated(user: user2);
         expect(state1, equals(state2));
@@ -143,7 +141,7 @@ void main() {
       test('AuthFailure should be equatable', () {
         final error1 = AuthError.fromMessage('Test error');
         final error2 = AuthError.fromMessage('Test error');
-        
+
         final state1 = AuthFailure(error: error1);
         final state2 = AuthFailure(error: error2);
         expect(state1.error.type, equals(state2.error.type));

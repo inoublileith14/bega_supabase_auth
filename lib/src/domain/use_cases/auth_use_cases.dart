@@ -31,7 +31,8 @@ class AuthUseCases {
         final user = AuthUser.fromSupabaseUser(response.user!);
         return AuthResult.success(
           user: user,
-          message: 'Account created successfully. Please check your email to verify your account.',
+          message:
+              'Account created successfully. Please check your email to verify your account.',
         );
       } else {
         return AuthResult.failure(
@@ -39,9 +40,7 @@ class AuthUseCases {
         );
       }
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 
@@ -68,9 +67,7 @@ class AuthUseCases {
         );
       }
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 
@@ -91,9 +88,7 @@ class AuthUseCases {
         );
       }
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 
@@ -112,9 +107,7 @@ class AuthUseCases {
         );
       }
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 
@@ -133,9 +126,64 @@ class AuthUseCases {
         );
       }
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
+    }
+  }
+
+  /// Sign in with Facebook
+  Future<AuthResult> signInWithFacebook() async {
+    try {
+      final success = await _socialAuthRepository.signInWithFacebook();
+      if (success) {
+        return AuthResult.success(
+          user: const AuthUser(id: 'temp'), // Placeholder
+          message: 'Facebook sign in initiated',
+        );
+      } else {
+        return AuthResult.failure(
+          error: AuthError.fromMessage('Failed to initiate Facebook sign in'),
+        );
+      }
+    } catch (e) {
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
+    }
+  }
+
+  /// Sign in with Twitter
+  Future<AuthResult> signInWithTwitter() async {
+    try {
+      final success = await _socialAuthRepository.signInWithTwitter();
+      if (success) {
+        return AuthResult.success(
+          user: const AuthUser(id: 'temp'), // Placeholder
+          message: 'Twitter sign in initiated',
+        );
+      } else {
+        return AuthResult.failure(
+          error: AuthError.fromMessage('Failed to initiate Twitter sign in'),
+        );
+      }
+    } catch (e) {
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
+    }
+  }
+
+  /// Sign in with Discord
+  Future<AuthResult> signInWithDiscord() async {
+    try {
+      final success = await _socialAuthRepository.signInWithDiscord();
+      if (success) {
+        return AuthResult.success(
+          user: const AuthUser(id: 'temp'), // Placeholder
+          message: 'Discord sign in initiated',
+        );
+      } else {
+        return AuthResult.failure(
+          error: AuthError.fromMessage('Failed to initiate Discord sign in'),
+        );
+      }
+    } catch (e) {
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 
@@ -143,13 +191,9 @@ class AuthUseCases {
   Future<AuthResult> signOut() async {
     try {
       await _authRepository.signOut();
-      return AuthResult.success(
-        message: 'Signed out successfully',
-      );
+      return AuthResult.success(message: 'Signed out successfully');
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 
@@ -172,9 +216,7 @@ class AuthUseCases {
         message: 'Password reset email sent. Please check your inbox.',
       );
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 
@@ -194,9 +236,7 @@ class AuthUseCases {
         );
       }
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 
@@ -224,9 +264,7 @@ class AuthUseCases {
         );
       }
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 
@@ -234,13 +272,9 @@ class AuthUseCases {
   Future<AuthResult> deleteAccount() async {
     try {
       await _authRepository.deleteUser();
-      return AuthResult.success(
-        message: 'Account deleted successfully',
-      );
+      return AuthResult.success(message: 'Account deleted successfully');
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 
@@ -260,9 +294,7 @@ class AuthUseCases {
         );
       }
     } catch (e) {
-      return AuthResult.failure(
-        error: AuthError.fromSupabaseException(e),
-      );
+      return AuthResult.failure(error: AuthError.fromSupabaseException(e));
     }
   }
 }

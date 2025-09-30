@@ -34,10 +34,7 @@ class AuthSignInRequested extends AuthEvent {
   final String email;
   final String password;
 
-  const AuthSignInRequested({
-    required this.email,
-    required this.password,
-  });
+  const AuthSignInRequested({required this.email, required this.password});
 
   @override
   List<Object?> get props => [email, password];
@@ -58,18 +55,36 @@ class AuthAppleSignInRequested extends AuthEvent {
   const AuthAppleSignInRequested();
 }
 
+/// Event to sign in with Facebook
+class AuthFacebookSignInRequested extends AuthEvent {
+  const AuthFacebookSignInRequested();
+}
+
+/// Event to sign in with Twitter
+class AuthTwitterSignInRequested extends AuthEvent {
+  const AuthTwitterSignInRequested();
+}
+
+/// Event to sign in with Discord
+class AuthDiscordSignInRequested extends AuthEvent {
+  const AuthDiscordSignInRequested();
+}
+
 /// Event to sign out
 class AuthSignOutRequested extends AuthEvent {
   const AuthSignOutRequested();
+}
+
+/// Event to logout (alias for sign out)
+class LogoutRequested extends AuthEvent {
+  const LogoutRequested();
 }
 
 /// Event to reset password
 class AuthPasswordResetRequested extends AuthEvent {
   final String email;
 
-  const AuthPasswordResetRequested({
-    required this.email,
-  });
+  const AuthPasswordResetRequested({required this.email});
 
   @override
   List<Object?> get props => [email];
@@ -79,9 +94,7 @@ class AuthPasswordResetRequested extends AuthEvent {
 class AuthPasswordUpdateRequested extends AuthEvent {
   final String newPassword;
 
-  const AuthPasswordUpdateRequested({
-    required this.newPassword,
-  });
+  const AuthPasswordUpdateRequested({required this.newPassword});
 
   @override
   List<Object?> get props => [newPassword];
@@ -93,11 +106,7 @@ class AuthProfileUpdateRequested extends AuthEvent {
   final String? password;
   final Map<String, dynamic>? metadata;
 
-  const AuthProfileUpdateRequested({
-    this.email,
-    this.password,
-    this.metadata,
-  });
+  const AuthProfileUpdateRequested({this.email, this.password, this.metadata});
 
   @override
   List<Object?> get props => [email, password, metadata];

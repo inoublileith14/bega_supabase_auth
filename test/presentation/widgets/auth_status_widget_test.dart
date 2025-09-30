@@ -11,6 +11,7 @@ import 'package:bega_supabase_auth/src/domain/use_cases/auth_use_cases.dart';
 
 // Mock classes
 class MockAuthBloc extends Mock implements AuthBloc {}
+
 class MockAuthUseCases extends Mock implements AuthUseCases {}
 
 void main() {
@@ -19,7 +20,9 @@ void main() {
 
     setUp(() {
       mockAuthBloc = MockAuthBloc();
-      when(() => mockAuthBloc.stream).thenAnswer((_) => Stream.value(const AuthInitial()));
+      when(
+        () => mockAuthBloc.stream,
+      ).thenAnswer((_) => Stream.value(const AuthInitial()));
     });
 
     Widget createWidgetUnderTest({
@@ -43,70 +46,92 @@ void main() {
       );
     }
 
-    testWidgets('shows authenticated widget when state is AuthAuthenticated', (WidgetTester tester) async {
+    testWidgets('shows authenticated widget when state is AuthAuthenticated', (
+      WidgetTester tester,
+    ) async {
       const user = AuthUser(id: 'test-id', email: 'test@example.com');
-      when(() => mockAuthBloc.state).thenReturn(const AuthAuthenticated(user: user));
+      when(
+        () => mockAuthBloc.state,
+      ).thenReturn(const AuthAuthenticated(user: user));
 
       const authenticatedWidget = Text('Authenticated');
       const unauthenticatedWidget = Text('Not Authenticated');
 
-      await tester.pumpWidget(createWidgetUnderTest(
-        authenticatedWidget: authenticatedWidget,
-        unauthenticatedWidget: unauthenticatedWidget,
-      ));
+      await tester.pumpWidget(
+        createWidgetUnderTest(
+          authenticatedWidget: authenticatedWidget,
+          unauthenticatedWidget: unauthenticatedWidget,
+        ),
+      );
 
       expect(find.text('Authenticated'), findsOneWidget);
       expect(find.text('Not Authenticated'), findsNothing);
     });
 
-    testWidgets('shows unauthenticated widget when state is AuthUnauthenticated', (WidgetTester tester) async {
-      when(() => mockAuthBloc.state).thenReturn(const AuthUnauthenticated());
+    testWidgets(
+      'shows unauthenticated widget when state is AuthUnauthenticated',
+      (WidgetTester tester) async {
+        when(() => mockAuthBloc.state).thenReturn(const AuthUnauthenticated());
 
-      const authenticatedWidget = Text('Authenticated');
-      const unauthenticatedWidget = Text('Not Authenticated');
+        const authenticatedWidget = Text('Authenticated');
+        const unauthenticatedWidget = Text('Not Authenticated');
 
-      await tester.pumpWidget(createWidgetUnderTest(
-        authenticatedWidget: authenticatedWidget,
-        unauthenticatedWidget: unauthenticatedWidget,
-      ));
+        await tester.pumpWidget(
+          createWidgetUnderTest(
+            authenticatedWidget: authenticatedWidget,
+            unauthenticatedWidget: unauthenticatedWidget,
+          ),
+        );
 
-      expect(find.text('Not Authenticated'), findsOneWidget);
-      expect(find.text('Authenticated'), findsNothing);
-    });
+        expect(find.text('Not Authenticated'), findsOneWidget);
+        expect(find.text('Authenticated'), findsNothing);
+      },
+    );
 
-    testWidgets('shows loading widget when state is AuthLoading', (WidgetTester tester) async {
+    testWidgets('shows loading widget when state is AuthLoading', (
+      WidgetTester tester,
+    ) async {
       when(() => mockAuthBloc.state).thenReturn(const AuthLoading());
 
       const authenticatedWidget = Text('Authenticated');
       const unauthenticatedWidget = Text('Not Authenticated');
       const loadingWidget = Text('Loading...');
 
-      await tester.pumpWidget(createWidgetUnderTest(
-        authenticatedWidget: authenticatedWidget,
-        unauthenticatedWidget: unauthenticatedWidget,
-        loadingWidget: loadingWidget,
-      ));
+      await tester.pumpWidget(
+        createWidgetUnderTest(
+          authenticatedWidget: authenticatedWidget,
+          unauthenticatedWidget: unauthenticatedWidget,
+          loadingWidget: loadingWidget,
+        ),
+      );
 
       expect(find.text('Loading...'), findsOneWidget);
       expect(find.text('Authenticated'), findsNothing);
       expect(find.text('Not Authenticated'), findsNothing);
     });
 
-    testWidgets('shows default loading widget when state is AuthLoading and no custom loading widget provided', (WidgetTester tester) async {
-      when(() => mockAuthBloc.state).thenReturn(const AuthLoading());
+    testWidgets(
+      'shows default loading widget when state is AuthLoading and no custom loading widget provided',
+      (WidgetTester tester) async {
+        when(() => mockAuthBloc.state).thenReturn(const AuthLoading());
 
-      const authenticatedWidget = Text('Authenticated');
-      const unauthenticatedWidget = Text('Not Authenticated');
+        const authenticatedWidget = Text('Authenticated');
+        const unauthenticatedWidget = Text('Not Authenticated');
 
-      await tester.pumpWidget(createWidgetUnderTest(
-        authenticatedWidget: authenticatedWidget,
-        unauthenticatedWidget: unauthenticatedWidget,
-      ));
+        await tester.pumpWidget(
+          createWidgetUnderTest(
+            authenticatedWidget: authenticatedWidget,
+            unauthenticatedWidget: unauthenticatedWidget,
+          ),
+        );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-    });
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      },
+    );
 
-    testWidgets('shows error widget when state is AuthFailure', (WidgetTester tester) async {
+    testWidgets('shows error widget when state is AuthFailure', (
+      WidgetTester tester,
+    ) async {
       final error = AuthError.fromMessage('Test error');
       when(() => mockAuthBloc.state).thenReturn(AuthFailure(error: error));
 
@@ -114,33 +139,42 @@ void main() {
       const unauthenticatedWidget = Text('Not Authenticated');
       const errorWidget = Text('Error occurred');
 
-      await tester.pumpWidget(createWidgetUnderTest(
-        authenticatedWidget: authenticatedWidget,
-        unauthenticatedWidget: unauthenticatedWidget,
-        errorWidget: errorWidget,
-      ));
+      await tester.pumpWidget(
+        createWidgetUnderTest(
+          authenticatedWidget: authenticatedWidget,
+          unauthenticatedWidget: unauthenticatedWidget,
+          errorWidget: errorWidget,
+        ),
+      );
 
       expect(find.text('Error occurred'), findsOneWidget);
       expect(find.text('Authenticated'), findsNothing);
       expect(find.text('Not Authenticated'), findsNothing);
     });
 
-    testWidgets('shows default error widget when state is AuthFailure and no custom error widget provided', (WidgetTester tester) async {
-      final error = AuthError.fromMessage('Test error');
-      when(() => mockAuthBloc.state).thenReturn(AuthFailure(error: error));
+    testWidgets(
+      'shows default error widget when state is AuthFailure and no custom error widget provided',
+      (WidgetTester tester) async {
+        final error = AuthError.fromMessage('Test error');
+        when(() => mockAuthBloc.state).thenReturn(AuthFailure(error: error));
 
-      const authenticatedWidget = Text('Authenticated');
-      const unauthenticatedWidget = Text('Not Authenticated');
+        const authenticatedWidget = Text('Authenticated');
+        const unauthenticatedWidget = Text('Not Authenticated');
 
-      await tester.pumpWidget(createWidgetUnderTest(
-        authenticatedWidget: authenticatedWidget,
-        unauthenticatedWidget: unauthenticatedWidget,
-      ));
+        await tester.pumpWidget(
+          createWidgetUnderTest(
+            authenticatedWidget: authenticatedWidget,
+            unauthenticatedWidget: unauthenticatedWidget,
+          ),
+        );
 
-      expect(find.text('An error occurred: Test error'), findsOneWidget);
-    });
+        expect(find.text('An error occurred: Test error'), findsOneWidget);
+      },
+    );
 
-    testWidgets('calls onStateChanged when state changes', (WidgetTester tester) async {
+    testWidgets('calls onStateChanged when state changes', (
+      WidgetTester tester,
+    ) async {
       AuthState? capturedState;
       void onStateChanged(AuthState state) {
         capturedState = state;
@@ -151,41 +185,43 @@ void main() {
       const authenticatedWidget = Text('Authenticated');
       const unauthenticatedWidget = Text('Not Authenticated');
 
-      await tester.pumpWidget(createWidgetUnderTest(
-        authenticatedWidget: authenticatedWidget,
-        unauthenticatedWidget: unauthenticatedWidget,
-        onStateChanged: onStateChanged,
-      ));
+      await tester.pumpWidget(
+        createWidgetUnderTest(
+          authenticatedWidget: authenticatedWidget,
+          unauthenticatedWidget: unauthenticatedWidget,
+          onStateChanged: onStateChanged,
+        ),
+      );
 
       expect(capturedState, isA<AuthInitial>());
     });
   });
 
   group('AuthLoadingWidget', () {
-    testWidgets('displays loading indicator with message', (WidgetTester tester) async {
+    testWidgets('displays loading indicator with message', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AuthLoadingWidget(message: 'Loading...'),
-        ),
+        const MaterialApp(home: AuthLoadingWidget(message: 'Loading...')),
       );
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
       expect(find.text('Loading...'), findsOneWidget);
     });
 
-    testWidgets('displays loading indicator without message', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: AuthLoadingWidget(),
-        ),
-      );
+    testWidgets('displays loading indicator without message', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: AuthLoadingWidget()));
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
   });
 
   group('AuthErrorWidget', () {
-    testWidgets('displays error message with retry button', (WidgetTester tester) async {
+    testWidgets('displays error message with retry button', (
+      WidgetTester tester,
+    ) async {
       bool retryPressed = false;
       void onRetry() {
         retryPressed = true;
@@ -193,10 +229,7 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: AuthErrorWidget(
-            message: 'Test error',
-            onRetry: onRetry,
-          ),
+          home: AuthErrorWidget(message: 'Test error', onRetry: onRetry),
         ),
       );
 
@@ -208,11 +241,11 @@ void main() {
       expect(retryPressed, isTrue);
     });
 
-    testWidgets('displays error message without retry button', (WidgetTester tester) async {
+    testWidgets('displays error message without retry button', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AuthErrorWidget(message: 'Test error'),
-        ),
+        const MaterialApp(home: AuthErrorWidget(message: 'Test error')),
       );
 
       expect(find.text('Test error'), findsOneWidget);
@@ -224,9 +257,7 @@ void main() {
   group('AuthSuccessWidget', () {
     testWidgets('displays success message', (WidgetTester tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: AuthSuccessWidget(message: 'Success!'),
-        ),
+        const MaterialApp(home: AuthSuccessWidget(message: 'Success!')),
       );
 
       expect(find.text('Success!'), findsOneWidget);
